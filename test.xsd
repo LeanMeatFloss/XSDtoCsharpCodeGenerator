@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://autosar.org/schema/r4.0" xmlns:AR="http://autosar.org/schema/r4.0">
+   <xsd:group name="AR-ELEMENT">
+      <xsd:annotation>
+         <xsd:documentation>An element that can be defined stand-alone, i.e. without being part of another element (except for packages of course).</xsd:documentation>
+         <xsd:appinfo source="tags">mmt.qualifiedName="ARElement"</xsd:appinfo>
+         <xsd:appinfo source="stereotypes">atpObject</xsd:appinfo>
+      </xsd:annotation>
+      <xsd:sequence/>
+   </xsd:group>
+   <!-- element group for class ArObject::ARObject -->
+   <xsd:group name="AR-OBJECT">
+      <xsd:annotation>
+         <xsd:documentation>Implicit base class of all classes in meta-model.</xsd:documentation>
+         <xsd:appinfo source="tags">mmt.qualifiedName="ARObject"</xsd:appinfo>
+         <xsd:appinfo source="stereotypes">atpObject</xsd:appinfo>
+      </xsd:annotation>
+      <xsd:sequence/>
+   </xsd:group>
+   <!-- attribute group for class ArObject::ARObject -->
+   <xsd:attributeGroup name="AR-OBJECT">
+      <xsd:annotation>
+         <xsd:documentation>Implicit base class of all classes in meta-model.</xsd:documentation>
+         <xsd:appinfo source="tags">mmt.qualifiedName="ARObject"</xsd:appinfo>
+         <xsd:appinfo source="stereotypes">atpObject</xsd:appinfo>
+      </xsd:annotation>
+      <xsd:attribute name="S" type="AR:STRING--SIMPLE">
+         <xsd:annotation>
+            <xsd:documentation>Checksum calculated by the user's tool environment for an ArObject. May be used in an own tool environment to determine if an ArObject has changed. The checksum has no semantic meaning for an AUTOSAR model and there is no requirement for AUTOSAR tools to manage the checksum.</xsd:documentation>
+            <xsd:appinfo source="tags">mmt.qualifiedName="ARObject.checksum";pureMM.maxOccurs="1";pureMM.minOccurs="0";xml.attribute="true";xml.name="S"</xsd:appinfo>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="T" type="AR:DATE--SIMPLE">
+         <xsd:annotation>
+            <xsd:documentation>Timestamp calculated by the user's tool environment for an ArObject. May be used in an own tool environment to determine the last change of an ArObject. The timestamp has no semantic meaning for an AUTOSAR model and there is no requirement for AUTOSAR tools to manage the timestamp.</xsd:documentation>
+            <xsd:appinfo source="tags">mmt.qualifiedName="ARObject.timestamp";pureMM.maxOccurs="1";pureMM.minOccurs="0";xml.attribute="true";xml.name="T"</xsd:appinfo>
+         </xsd:annotation>
+      </xsd:attribute>
+   </xsd:attributeGroup>
+   <!-- element group for class ARPackage::ARPackage -->
+   <xsd:group name="AR-PACKAGE">
+      <xsd:annotation>
+         <xsd:documentation>AUTOSAR package, allowing to create top level packages to structure the contained ARElements.
+
+ARPackages are open sets. This means that in a file based description system multiple files can be used to partially describe the contents of a package.
+
+This is an extended version of MSR's SW-SYSTEM.</xsd:documentation>
+         <xsd:appinfo source="tags">mmt.qualifiedName="ARPackage"</xsd:appinfo>
+         <xsd:appinfo source="stereotypes">atpObject</xsd:appinfo>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element maxOccurs="1" minOccurs="0" name="REFERENCE-BASES">
+            <xsd:annotation>
+               <xsd:documentation>This denotes the reference bases for the package. This is the basis for all relative references within the package. The base needs to be selected according to the base attribute within the references.</xsd:documentation>
+               <xsd:appinfo source="tags">atp.Splitkey="shortLabel";mmt.qualifiedName="ARPackage.referenceBase";pureMM.maxOccurs="-1";pureMM.minOccurs="0";xml.sequenceOffset="10"</xsd:appinfo>
+               <xsd:appinfo source="stereotypes">atpSplitable</xsd:appinfo>
+            </xsd:annotation>
+            <xsd:complexType>
+               <xsd:choice maxOccurs="unbounded" minOccurs="0">
+                  <xsd:element name="REFERENCE-BASE" type="AR:REFERENCE-BASE"/>
+               </xsd:choice>
+            </xsd:complexType>
+         </xsd:element>
+         <xsd:element maxOccurs="1" minOccurs="0" name="ELEMENTS">
+            <xsd:annotation>
+               <xsd:documentation>Elements that are part of this package
+The upper multiplicity of this role has been increased to * due to resolving an atpVariation stereotype. The previous value was -1.</xsd:documentation>
+               <xsd:appinfo source="tags">atp.Splitkey="shortName, variationPoint.shortLabel";mmt.qualifiedName="ARPackage.element";pureMM.maxOccurs="-1";pureMM.minOccurs="0";vh.latestBindingTime="systemDesignTime";xml.sequenceOffset="20"</xsd:appinfo>
+               <xsd:appinfo source="stereotypes">atpSplitable</xsd:appinfo>
+            </xsd:annotation>
+            <xsd:complexType>
+               <xsd:choice maxOccurs="unbounded" minOccurs="0">
+                  <xsd:element name="ACL-OBJECT-SET" type="AR:ACL-OBJECT-SET"/>
+                  <xsd:element name="ACL-OPERATION" type="AR:ACL-OPERATION"/>
+                  <xsd:element name="ACL-PERMISSION" type="AR:ACL-PERMISSION"/>
+                  <xsd:element name="ACL-ROLE" type="AR:ACL-ROLE"/>
+                  <xsd:element name="ALIAS-NAME-SET" type="AR:ALIAS-NAME-SET"/>
+                  <xsd:element name="APPLICATION-ARRAY-DATA-TYPE" type="AR:APPLICATION-ARRAY-DATA-TYPE"/>
+                  <xsd:element name="APPLICATION-PARTITION" type="AR:APPLICATION-PARTITION"/>
+                  <xsd:element name="APPLICATION-PRIMITIVE-DATA-TYPE" type="AR:APPLICATION-PRIMITIVE-DATA-TYPE"/>
+                  <xsd:element name="APPLICATION-RECORD-DATA-TYPE" type="AR:APPLICATION-RECORD-DATA-TYPE"/>
+                  <xsd:element name="APPLICATION-SW-COMPONENT-TYPE" type="AR:APPLICATION-SW-COMPONENT-TYPE"/>
+                  <xsd:element name="BLUEPRINT-MAPPING-SET" type="AR:BLUEPRINT-MAPPING-SET"/>
+                  <xsd:element name="BSW-ENTRY-RELATIONSHIP-SET" type="AR:BSW-ENTRY-RELATIONSHIP-SET"/>
+                  <xsd:element name="BSW-IMPLEMENTATION" type="AR:BSW-IMPLEMENTATION"/>
+                  <xsd:element name="BSW-MODULE-DESCRIPTION" type="AR:BSW-MODULE-DESCRIPTION"/>
+                  <xsd:element name="BSW-MODULE-ENTRY" type="AR:BSW-MODULE-ENTRY"/>
+                  <xsd:element name="BSW-MODULE-TIMING" type="AR:BSW-MODULE-TIMING"/>
+                  <xsd:element name="BUILD-ACTION-MANIFEST" type="AR:BUILD-ACTION-MANIFEST"/>
+                  <xsd:element name="CALIBRATION-PARAMETER-VALUE-SET" type="AR:CALIBRATION-PARAMETER-VALUE-SET"/>
+                  <xsd:element name="CAN-CLUSTER" type="AR:CAN-CLUSTER"/>
+                  <xsd:element name="CAN-FRAME" type="AR:CAN-FRAME"/>
+                  <xsd:element name="CAN-TP-CONFIG" type="AR:CAN-TP-CONFIG"/>
+                  <xsd:element name="CLIENT-ID-DEFINITION-SET" type="AR:CLIENT-ID-DEFINITION-SET"/>
+                  <xsd:element name="CLIENT-SERVER-INTERFACE" type="AR:CLIENT-SERVER-INTERFACE"/>
+                  <xsd:element name="CLIENT-SERVER-INTERFACE-TO-BSW-MODULE-ENTRY-BLUEPRINT-MAPPING" type="AR:CLIENT-SERVER-INTERFACE-TO-BSW-MODULE-ENTRY-BLUEPRINT-MAPPING"/>
+                  <xsd:element name="COLLECTION" type="AR:COLLECTION"/>
+                  <xsd:element name="COMPLEX-DEVICE-DRIVER-SW-COMPONENT-TYPE" type="AR:COMPLEX-DEVICE-DRIVER-SW-COMPONENT-TYPE"/>
+                  <xsd:element name="COMPOSITION-SW-COMPONENT-TYPE" type="AR:COMPOSITION-SW-COMPONENT-TYPE"/>
+                  <xsd:element name="COMPU-METHOD" type="AR:COMPU-METHOD"/>
+                  <xsd:element name="CONSISTENCY-NEEDS-BLUEPRINT-SET" type="AR:CONSISTENCY-NEEDS-BLUEPRINT-SET"/>
+                  <xsd:element name="CONSTANT-SPECIFICATION" type="AR:CONSTANT-SPECIFICATION"/>
+                  <xsd:element name="CONSTANT-SPECIFICATION-MAPPING-SET" type="AR:CONSTANT-SPECIFICATION-MAPPING-SET"/>
+                  <xsd:element name="CONTAINER-I-PDU" type="AR:CONTAINER-I-PDU"/>
+                  <xsd:element name="COUPLING-ELEMENT" type="AR:COUPLING-ELEMENT"/>
+                  <xsd:element name="DATA-CONSTR" type="AR:DATA-CONSTR"/>
+                  <xsd:element name="DATA-EXCHANGE-POINT" type="AR:DATA-EXCHANGE-POINT"/>
+                  <xsd:element name="DATA-TRANSFORMATION-SET" type="AR:DATA-TRANSFORMATION-SET"/>
+                  <xsd:element name="DATA-TYPE-MAPPING-SET" type="AR:DATA-TYPE-MAPPING-SET"/>
+                  <xsd:element name="DCM-I-PDU" type="AR:DCM-I-PDU"/>
+                  <xsd:element name="DIAGNOSTIC-ACCESS-PERMISSION" type="AR:DIAGNOSTIC-ACCESS-PERMISSION"/>
+                  <xsd:element name="DIAGNOSTIC-AGING" type="AR:DIAGNOSTIC-AGING"/>
+                  <xsd:element name="DIAGNOSTIC-CLEAR-DIAGNOSTIC-INFORMATION" type="AR:DIAGNOSTIC-CLEAR-DIAGNOSTIC-INFORMATION"/>
+                  <xsd:element name="DIAGNOSTIC-CLEAR-DIAGNOSTIC-INFORMATION-CLASS" type="AR:DIAGNOSTIC-CLEAR-DIAGNOSTIC-INFORMATION-CLASS"/>
+                  <xsd:element name="DIAGNOSTIC-CLEAR-RESET-EMISSION-RELATED-INFO" type="AR:DIAGNOSTIC-CLEAR-RESET-EMISSION-RELATED-INFO"/>
+                  <xsd:element name="DIAGNOSTIC-CLEAR-RESET-EMISSION-RELATED-INFO-CLASS" type="AR:DIAGNOSTIC-CLEAR-RESET-EMISSION-RELATED-INFO-CLASS"/>
+                  <xsd:element name="DIAGNOSTIC-COM-CONTROL" type="AR:DIAGNOSTIC-COM-CONTROL"/>
+                  <xsd:element name="DIAGNOSTIC-COM-CONTROL-CLASS" type="AR:DIAGNOSTIC-COM-CONTROL-CLASS"/>
+                  <xsd:element name="DIAGNOSTIC-CONNECTION" type="AR:DIAGNOSTIC-CONNECTION"/>
+                  <xsd:element name="DIAGNOSTIC-CONTRIBUTION-SET" type="AR:DIAGNOSTIC-CONTRIBUTION-SET"/>
+                  <xsd:element name="DIAGNOSTIC-CONTROL-DTC-SETTING" type="AR:DIAGNOSTIC-CONTROL-DTC-SETTING"/>
+                  <xsd:element name="DIAGNOSTIC-CONTROL-DTC-SETTING-CLASS" type="AR:DIAGNOSTIC-CONTROL-DTC-SETTING-CLASS"/>
+                  <xsd:element name="DIAGNOSTIC-CUSTOM-SERVICE-CLASS" type="AR:DIAGNOSTIC-CUSTOM-SERVICE-CLASS"/>
+                  <xsd:element name="DIAGNOSTIC-DATA-IDENTIFIER" type="AR:DIAGNOSTIC-DATA-IDENTIFIER"/>
+                  <xsd:element name="DIAGNOSTIC-DATA-IDENTIFIER-SET" type="AR:DIAGNOSTIC-DATA-IDENTIFIER-SET"/>
+                  <xsd:element name="DIAGNOSTIC-DATA-TRANSFER" type="AR:DIAGNOSTIC-DATA-TRANSFER"/>
+                  <xsd:element name="DIAGNOSTIC-DATA-TRANSFER-CLASS" type="AR:DIAGNOSTIC-DATA-TRANSFER-CLASS"/>
+                  <xsd:element name="DIAGNOSTIC-DEM-PROVIDED-DATA-MAPPING" type="AR:DIAGNOSTIC-DEM-PROVIDED-DATA-MAPPING"/>
+                  <xsd:element name="DIAGNOSTIC-DYNAMIC-DATA-IDENTIFIER" type="AR:DIAGNOSTIC-DYNAMIC-DATA-IDENTIFIER"/>
+                  <xsd:element name="DIAGNOSTIC-DYNAMICALLY-DEFINE-DATA-IDENTIFIER" type="AR:DIAGNOSTIC-DYNAMICALLY-DEFINE-DATA-IDENTIFIER"/>
+                  <xsd:element name="DIAGNOSTIC-DYNAMICALLY-DEFINE-DATA-IDENTIFIER-CLASS" type="AR:DIAGNOSTIC-DYNAMICALLY-DEFINE-DATA-IDENTIFIER-CLASS"/>
+                  <xsd:element name="DIAGNOSTIC-ECU-INSTANCE-PROPS" type="AR:DIAGNOSTIC-ECU-INSTANCE-PROPS"/>
+                  <xsd:element name="DIAGNOSTIC-ECU-RESET" type="AR:DIAGNOSTIC-ECU-RESET"/>
+                  <xsd:element name="DIAGNOSTIC-ECU-RESET-CLASS" type="AR:DIAGNOSTIC-ECU-RESET-CLASS"/>
+                  <xsd:element name="DIAGNOSTIC-ENABLE-CONDITION" type="AR:DIAGNOSTIC-ENABLE-CONDITION"/>
+                  <xsd:element name="DIAGNOSTIC-ENABLE-CONDITION-GROUP" type="AR:DIAGNOSTIC-ENABLE-CONDITION-GROUP"/>
+                  <xsd:element name="DIAGNOSTIC-ENABLE-CONDITION-PORT-MAPPING" type="AR:DIAGNOSTIC-ENABLE-CONDITION-PORT-MAPPING"/>
+                  <xsd:element name="DIAGNOSTIC-ENVIRONMENTAL-CONDITION" type="AR:DIAGNOSTIC-ENVIRONMENTAL-CONDITION"/>
+                  <xsd:element name="DIAGNOSTIC-EVENT" type="AR:DIAGNOSTIC-EVENT"/>
+                  <xsd:element name="DIAGNOSTIC-EVENT-PORT-MAPPING" type="AR:DIAGNOSTIC-EVENT-PORT-MAPPING"/>
+                  <xsd:element name="DIAGNOSTIC-EVENT-TO-DEBOUNCE-ALGORITHM-MAPPING" type="AR:DIAGNOSTIC-EVENT-TO-DEBOUNCE-ALGORITHM-MAPPING"/>
+                  <xsd:element name="DIAGNOSTIC-EVENT-TO-ENABLE-CONDITION-GROUP-MAPPING" type="AR:DIAGNOSTIC-EVENT-TO-ENABLE-CONDITION-GROUP-MAPPING"/>
+                  <xsd:element name="DIAGNOSTIC-EVENT-TO-OPERATION-CYCLE-MAPPING" type="AR:DIAGNOSTIC-EVENT-TO-OPERATION-CYCLE-MAPPING"/>
+                  <xsd:element name="DIAGNOSTIC-EVENT-TO-STORAGE-CONDITION-GROUP-MAPPING" type="AR:DIAGNOSTIC-EVENT-TO-STORAGE-CONDITION-GROUP-MAPPING"/>
+                  <xsd:element name="DIAGNOSTIC-EVENT-TO-TROUBLE-CODE-UDS-MAPPING" type="AR:DIAGNOSTIC-EVENT-TO-TROUBLE-CODE-UDS-MAPPING"/>
+                  <xsd:element name="DIAGNOSTIC-EXTENDED-DATA-RECORD" type="AR:DIAGNOSTIC-EXTENDED-DATA-RECORD"/>
+                  <xsd:element name="DIAGNOSTIC-FIM-ALIAS-EVENT" type="AR:DIAGNOSTIC-FIM-ALIAS-EVENT"/>
+                  <xsd:element name="DIAGNOSTIC-FIM-ALIAS-EVENT-GROUP" type="AR:DIAGNOSTIC-FIM-ALIAS-EVENT-GROUP"/>
+                  <xsd:element name="DIAGNOSTIC-FIM-ALIAS-EVENT-GROUP-MAPPING" type="AR:DIAGNOSTIC-FIM-ALIAS-EVENT-GROUP-MAPPING"/>
+                  <xsd:element name="DIAGNOSTIC-FIM-ALIAS-EVENT-MAPPING" type="AR:DIAGNOSTIC-FIM-ALIAS-EVENT-MAPPING"/>
+                  <xsd:element name="DIAGNOSTIC-FIM-EVENT-GROUP" type="AR:DIAGNOSTIC-FIM-EVENT-GROUP"/>
+                  <xsd:element name="DIAGNOSTIC-FIM-FUNCTION-MAPPING" type="AR:DIAGNOSTIC-FIM-FUNCTION-MAPPING"/>
+                  <xsd:element name="DIAGNOSTIC-FREEZE-FRAME" type="AR:DIAGNOSTIC-FREEZE-FRAME"/>
+                  <xsd:element name="DIAGNOSTIC-FUNCTION-IDENTIFIER" type="AR:DIAGNOSTIC-FUNCTION-IDENTIFIER"/>
+                  <xsd:element name="DIAGNOSTIC-FUNCTION-IDENTIFIER-INHIBIT" type="AR:DIAGNOSTIC-FUNCTION-IDENTIFIER-INHIBIT"/>
+                  <xsd:element name="DIAGNOSTIC-IO-CONTROL" type="AR:DIAGNOSTIC-IO-CONTROL"/>
+                  <xsd:element name="DIAGNOSTIC-INDICATOR" type="AR:DIAGNOSTIC-INDICATOR"/>
+                  <xsd:element name="DIAGNOSTIC-INFO-TYPE" type="AR:DIAGNOSTIC-INFO-TYPE"/>
+                  <xsd:element name="DIAGNOSTIC-INHIBIT-SOURCE-EVENT-MAPPING" type="AR:DIAGNOSTIC-INHIBIT-SOURCE-EVENT-MAPPING"/>
+                  <xsd:element name="DIAGNOSTIC-IO-CONTROL-CLASS" type="AR:DIAGNOSTIC-IO-CONTROL-CLASS"/>
+                  <xsd:element name="DIAGNOSTIC-IUMPR" type="AR:DIAGNOSTIC-IUMPR"/>
+                  <xsd:element name="DIAGNOSTIC-IUMPR-DENOMINATOR-GROUP" type="AR:DIAGNOSTIC-IUMPR-DENOMINATOR-GROUP"/>
+                  <xsd:element name="DIAGNOSTIC-IUMPR-GROUP" type="AR:DIAGNOSTIC-IUMPR-GROUP"/>
+                  <xsd:element name="DIAGNOSTIC-J-1939-EXPANDED-FREEZE-FRAME" type="AR:DIAGNOSTIC-J-1939-EXPANDED-FREEZE-FRAME"/>
+                  <xsd:element name="DIAGNOSTIC-J-1939-FREEZE-FRAME" type="AR:DIAGNOSTIC-J-1939-FREEZE-FRAME"/>
+                  <xsd:element name="DIAGNOSTIC-J-1939-NODE" type="AR:DIAGNOSTIC-J-1939-NODE"/>
+                  <xsd:element name="DIAGNOSTIC-J-1939-SPN" type="AR:DIAGNOSTIC-J-1939-SPN"/>
+                  <xsd:element name="DIAGNOSTIC-J-1939-SPN-MAPPING" type="AR:DIAGNOSTIC-J-1939-SPN-MAPPING"/>
+                  <xsd:element name="DIAGNOSTIC-J-1939-SW-MAPPING" type="AR:DIAGNOSTIC-J-1939-SW-MAPPING"/>
+                  <xsd:element name="DIAGNOSTIC-MEASUREMENT-IDENTIFIER" type="AR:DIAGNOSTIC-MEASUREMENT-IDENTIFIER"/>
+                  <xsd:element name="DIAGNOSTIC-MEMORY-DESTINATION-MIRROR" type="AR:DIAGNOSTIC-MEMORY-DESTINATION-MIRROR"/>
+                  <xsd:element name="DIAGNOSTIC-MEMORY-DESTINATION-PRIMARY" type="AR:DIAGNOSTIC-MEMORY-DESTINATION-PRIMARY"/>
+                  <xsd:element name="DIAGNOSTIC-MEMORY-DESTINATION-USER-DEFINED" type="AR:DIAGNOSTIC-MEMORY-DESTINATION-USER-DEFINED"/>
+                  <xsd:element name="DIAGNOSTIC-MEMORY-IDENTIFIER" type="AR:DIAGNOSTIC-MEMORY-IDENTIFIER"/>
+                  <xsd:element name="DIAGNOSTIC-OPERATION-CYCLE" type="AR:DIAGNOSTIC-OPERATION-CYCLE"/>
+                  <xsd:element name="DIAGNOSTIC-OPERATION-CYCLE-PORT-MAPPING" type="AR:DIAGNOSTIC-OPERATION-CYCLE-PORT-MAPPING"/>
+                  <xsd:element name="DIAGNOSTIC-PARAMETER-IDENTIFIER" type="AR:DIAGNOSTIC-PARAMETER-IDENTIFIER"/>
+                  <xsd:element name="DIAGNOSTIC-POWERTRAIN-FREEZE-FRAME" type="AR:DIAGNOSTIC-POWERTRAIN-FREEZE-FRAME"/>
+                  <xsd:element name="DIAGNOSTIC-PROTOCOL" type="AR:DIAGNOSTIC-PROTOCOL"/>
+                  <xsd:element name="DIAGNOSTIC-READ-DTC-INFORMATION" type="AR:DIAGNOSTIC-READ-DTC-INFORMATION"/>
+                  <xsd:element name="DIAGNOSTIC-READ-DTC-INFORMATION-CLASS" type="AR:DIAGNOSTIC-READ-DTC-INFORMATION-CLASS"/>
+                  <xsd:element name="DIAGNOSTIC-READ-DATA-BY-IDENTIFIER" type="AR:DIAGNOSTIC-READ-DATA-BY-IDENTIFIER"/>
+                  <xsd:element name="DIAGNOSTIC-READ-DATA-BY-IDENTIFIER-CLASS" type="AR:DIAGNOSTIC-READ-DATA-BY-IDENTIFIER-CLASS"/>
+                  <xsd:element name="DIAGNOSTIC-READ-DATA-BY-PERIODIC-ID" type="AR:DIAGNOSTIC-READ-DATA-BY-PERIODIC-ID"/>
+                  <xsd:element name="DIAGNOSTIC-READ-DATA-BY-PERIODIC-ID-CLASS" type="AR:DIAGNOSTIC-READ-DATA-BY-PERIODIC-ID-CLASS"/>
+                  <xsd:element name="DIAGNOSTIC-READ-MEMORY-BY-ADDRESS" type="AR:DIAGNOSTIC-READ-MEMORY-BY-ADDRESS"/>
+                  <xsd:element name="DIAGNOSTIC-READ-MEMORY-BY-ADDRESS-CLASS" type="AR:DIAGNOSTIC-READ-MEMORY-BY-ADDRESS-CLASS"/>
+                  <xsd:element name="DIAGNOSTIC-REQUEST-CONTROL-OF-ON-BOARD-DEVICE" type="AR:DIAGNOSTIC-REQUEST-CONTROL-OF-ON-BOARD-DEVICE"/>
+                  <xsd:element name="DIAGNOSTIC-REQUEST-CONTROL-OF-ON-BOARD-DEVICE-CLASS" type="AR:DIAGNOSTIC-REQUEST-CONTROL-OF-ON-BOARD-DEVICE-CLASS"/>
+                  <xsd:element name="DIAGNOSTIC-REQUEST-CURRENT-POWERTRAIN-DATA" type="AR:DIAGNOSTIC-REQUEST-CURRENT-POWERTRAIN-DATA"/>
+                  <xsd:element name="DIAGNOSTIC-REQUEST-CURRENT-POWERTRAIN-DATA-CLASS" type="AR:DIAGNOSTIC-REQUEST-CURRENT-POWERTRAIN-DATA-CLASS"/>
+                  <xsd:element name="DIAGNOSTIC-REQUEST-DOWNLOAD" type="AR:DIAGNOSTIC-REQUEST-DOWNLOAD"/>
+                  <xsd:element name="DIAGNOSTIC-REQUEST-DOWNLOAD-CLASS" type="AR:DIAGNOSTIC-REQUEST-DOWNLOAD-CLASS"/>
+                  <xsd:element name="DIAGNOSTIC-REQUEST-EMISSION-RELATED-DTC" type="AR:DIAGNOSTIC-REQUEST-EMISSION-RELATED-DTC"/>
+                  <xsd:element name="DIAGNOSTIC-REQUEST-EMISSION-RELATED-DTC-CLASS" type="AR:DIAGNOSTIC-REQUEST-EMISSION-RELATED-DTC-CLASS"/>
+                  <xsd:element name="DIAGNOSTIC-REQUEST-EMISSION-RELATED-DTC-PERMANENT-STATUS" type="AR:DIAGNOSTIC-REQUEST-EMISSION-RELATED-DTC-PERMANENT-STATUS"/>
+                  <xsd:element name="DIAGNOSTIC-REQUEST-EMISSION-RELATED-DTC-PERMANENT-STATUS-CLASS" type="AR:DIAGNOSTIC-REQUEST-EMISSION-RELATED-DTC-PERMANENT-STATUS-CLASS"/>
+                  <xsd:element name="DIAGNOSTIC-REQUEST-FILE-TRANSFER" type="AR:DIAGNOSTIC-REQUEST-FILE-TRANSFER"/>
+                  <xsd:element name="DIAGNOSTIC-REQUEST-FILE-TRANSFER-CLASS" type="AR:DIAGNOSTIC-REQUEST-FILE-TRANSFER-CLASS"/>
+                  <xsd:element name="DIAGNOSTIC-REQUEST-ON-BOARD-MONITORING-TEST-RESULTS" type="AR:DIAGNOSTIC-REQUEST-ON-BOARD-MONITORING-TEST-RESULTS"/>
+                  <xsd:element name="DIAGNOSTIC-REQUEST-ON-BOARD-MONITORING-TEST-RESULTS-CLASS" type="AR:DIAGNOSTIC-REQUEST-ON-BOARD-MONITORING-TEST-RESULTS-CLASS"/>
+                  <xsd:element name="DIAGNOSTIC-REQUEST-POWERTRAIN-FREEZE-FRAME-DATA" type="AR:DIAGNOSTIC-REQUEST-POWERTRAIN-FREEZE-FRAME-DATA"/>
+                  <xsd:element name="DIAGNOSTIC-REQUEST-POWERTRAIN-FREEZE-FRAME-DATA-CLASS" type="AR:DIAGNOSTIC-REQUEST-POWERTRAIN-FREEZE-FRAME-DATA-CLASS"/>
+                  <xsd:element name="DIAGNOSTIC-REQUEST-UPLOAD" type="AR:DIAGNOSTIC-REQUEST-UPLOAD"/>
+                  <xsd:element name="DIAGNOSTIC-REQUEST-UPLOAD-CLASS" type="AR:DIAGNOSTIC-REQUEST-UPLOAD-CLASS"/>
+                  <xsd:element name="DIAGNOSTIC-REQUEST-VEHICLE-INFO" type="AR:DIAGNOSTIC-REQUEST-VEHICLE-INFO"/>
+                  <xsd:element name="DIAGNOSTIC-REQUEST-VEHICLE-INFO-CLASS" type="AR:DIAGNOSTIC-REQUEST-VEHICLE-INFO-CLASS"/>
+                  <xsd:element name="DIAGNOSTIC-RESPONSE-ON-EVENT" type="AR:DIAGNOSTIC-RESPONSE-ON-EVENT"/>
+                  <xsd:element name="DIAGNOSTIC-RESPONSE-ON-EVENT-CLASS" type="AR:DIAGNOSTIC-RESPONSE-ON-EVENT-CLASS"/>
+                  <xsd:element name="DIAGNOSTIC-ROUTINE" type="AR:DIAGNOSTIC-ROUTINE"/>
+                  <xsd:element name="DIAGNOSTIC-ROUTINE-CONTROL" type="AR:DIAGNOSTIC-ROUTINE-CONTROL"/>
+                  <xsd:element name="DIAGNOSTIC-ROUTINE-CONTROL-CLASS" type="AR:DIAGNOSTIC-ROUTINE-CONTROL-CLASS"/>
+                  <xsd:element name="DIAGNOSTIC-SECURITY-ACCESS" type="AR:DIAGNOSTIC-SECURITY-ACCESS"/>
+                  <xsd:element name="DIAGNOSTIC-SECURITY-ACCESS-CLASS" type="AR:DIAGNOSTIC-SECURITY-ACCESS-CLASS"/>
+                  <xsd:element name="DIAGNOSTIC-SECURITY-LEVEL" type="AR:DIAGNOSTIC-SECURITY-LEVEL"/>
+                  <xsd:element name="DIAGNOSTIC-SERVICE-DATA-MAPPING" type="AR:DIAGNOSTIC-SERVICE-DATA-MAPPING"/>
+                  <xsd:element name="DIAGNOSTIC-SERVICE-SW-MAPPING" type="AR:DIAGNOSTIC-SERVICE-SW-MAPPING"/>
+                  <xsd:element name="DIAGNOSTIC-SERVICE-TABLE" type="AR:DIAGNOSTIC-SERVICE-TABLE"/>
+                  <xsd:element name="DIAGNOSTIC-SESSION" type="AR:DIAGNOSTIC-SESSION"/>
+                  <xsd:element name="DIAGNOSTIC-SESSION-CONTROL" type="AR:DIAGNOSTIC-SESSION-CONTROL"/>
+                  <xsd:element name="DIAGNOSTIC-SESSION-CONTROL-CLASS" type="AR:DIAGNOSTIC-SESSION-CONTROL-CLASS"/>
+                  <xsd:element name="DIAGNOSTIC-STORAGE-CONDITION" type="AR:DIAGNOSTIC-STORAGE-CONDITION"/>
+                  <xsd:element name="DIAGNOSTIC-STORAGE-CONDITION-GROUP" type="AR:DIAGNOSTIC-STORAGE-CONDITION-GROUP"/>
+                  <xsd:element name="DIAGNOSTIC-STORAGE-CONDITION-PORT-MAPPING" type="AR:DIAGNOSTIC-STORAGE-CONDITION-PORT-MAPPING"/>
+                  <xsd:element name="DIAGNOSTIC-TEST-RESULT" type="AR:DIAGNOSTIC-TEST-RESULT"/>
+                  <xsd:element name="DIAGNOSTIC-TEST-ROUTINE-IDENTIFIER" type="AR:DIAGNOSTIC-TEST-ROUTINE-IDENTIFIER"/>
+                  <xsd:element name="DIAGNOSTIC-TRANSFER-EXIT" type="AR:DIAGNOSTIC-TRANSFER-EXIT"/>
+                  <xsd:element name="DIAGNOSTIC-TRANSFER-EXIT-CLASS" type="AR:DIAGNOSTIC-TRANSFER-EXIT-CLASS"/>
+                  <xsd:element name="DIAGNOSTIC-TROUBLE-CODE-GROUP" type="AR:DIAGNOSTIC-TROUBLE-CODE-GROUP"/>
+                  <xsd:element name="DIAGNOSTIC-TROUBLE-CODE-J-1939" type="AR:DIAGNOSTIC-TROUBLE-CODE-J-1939"/>
+                  <xsd:element name="DIAGNOSTIC-TROUBLE-CODE-OBD" type="AR:DIAGNOSTIC-TROUBLE-CODE-OBD"/>
+                  <xsd:element name="DIAGNOSTIC-TROUBLE-CODE-PROPS" type="AR:DIAGNOSTIC-TROUBLE-CODE-PROPS"/>
+                  <xsd:element name="DIAGNOSTIC-TROUBLE-CODE-UDS" type="AR:DIAGNOSTIC-TROUBLE-CODE-UDS"/>
+                  <xsd:element name="DIAGNOSTIC-TROUBLE-CODE-UDS-TO-TROUBLE-CODE-OBD-MAPPING" type="AR:DIAGNOSTIC-TROUBLE-CODE-UDS-TO-TROUBLE-CODE-OBD-MAPPING"/>
+                  <xsd:element name="DIAGNOSTIC-WRITE-DATA-BY-IDENTIFIER" type="AR:DIAGNOSTIC-WRITE-DATA-BY-IDENTIFIER"/>
+                  <xsd:element name="DIAGNOSTIC-WRITE-DATA-BY-IDENTIFIER-CLASS" type="AR:DIAGNOSTIC-WRITE-DATA-BY-IDENTIFIER-CLASS"/>
+                  <xsd:element name="DIAGNOSTIC-WRITE-MEMORY-BY-ADDRESS" type="AR:DIAGNOSTIC-WRITE-MEMORY-BY-ADDRESS"/>
+                  <xsd:element name="DIAGNOSTIC-WRITE-MEMORY-BY-ADDRESS-CLASS" type="AR:DIAGNOSTIC-WRITE-MEMORY-BY-ADDRESS-CLASS"/>
+                  <xsd:element name="DO-IP-TP-CONFIG" type="AR:DO-IP-TP-CONFIG"/>
+                  <xsd:element name="DOCUMENTATION" type="AR:DOCUMENTATION"/>
+                  <xsd:element name="ECU-ABSTRACTION-SW-COMPONENT-TYPE" type="AR:ECU-ABSTRACTION-SW-COMPONENT-TYPE"/>
+                  <xsd:element name="ECU-INSTANCE" type="AR:ECU-INSTANCE"/>
+                  <xsd:element name="ECU-TIMING" type="AR:ECU-TIMING"/>
+                  <xsd:element name="ECUC-DEFINITION-COLLECTION" type="AR:ECUC-DEFINITION-COLLECTION"/>
+                  <xsd:element name="ECUC-DESTINATION-URI-DEF-SET" type="AR:ECUC-DESTINATION-URI-DEF-SET"/>
+                  <xsd:element name="ECUC-MODULE-CONFIGURATION-VALUES" type="AR:ECUC-MODULE-CONFIGURATION-VALUES"/>
+                  <xsd:element name="ECUC-MODULE-DEF" type="AR:ECUC-MODULE-DEF"/>
+                  <xsd:element name="ECUC-VALUE-COLLECTION" type="AR:ECUC-VALUE-COLLECTION"/>
+                  <xsd:element name="END-TO-END-PROTECTION-SET" type="AR:END-TO-END-PROTECTION-SET"/>
+                  <xsd:element name="ENUMERATION-MAPPING-TABLE" type="AR:ENUMERATION-MAPPING-TABLE"/>
+                  <xsd:element name="ETHERNET-CLUSTER" type="AR:ETHERNET-CLUSTER"/>
+                  <xsd:element name="ETHERNET-FRAME" type="AR:ETHERNET-FRAME"/>
+                  <xsd:element name="EVALUATED-VARIANT-SET" type="AR:EVALUATED-VARIANT-SET"/>
+                  <xsd:element name="FM-FEATURE" type="AR:FM-FEATURE"/>
+                  <xsd:element name="FM-FEATURE-MAP" type="AR:FM-FEATURE-MAP"/>
+                  <xsd:element name="FM-FEATURE-MODEL" type="AR:FM-FEATURE-MODEL"/>
+                  <xsd:element name="FM-FEATURE-SELECTION-SET" type="AR:FM-FEATURE-SELECTION-SET"/>
+                  <xsd:element name="FLAT-MAP" type="AR:FLAT-MAP"/>
+                  <xsd:element name="FLEXRAY-AR-TP-CONFIG" type="AR:FLEXRAY-AR-TP-CONFIG"/>
+                  <xsd:element name="FLEXRAY-CLUSTER" type="AR:FLEXRAY-CLUSTER"/>
+                  <xsd:element name="FLEXRAY-FRAME" type="AR:FLEXRAY-FRAME"/>
+                  <xsd:element name="FLEXRAY-TP-CONFIG" type="AR:FLEXRAY-TP-CONFIG"/>
+                  <xsd:element name="GATEWAY" type="AR:GATEWAY"/>
+                  <xsd:element name="GENERAL-PURPOSE-I-PDU" type="AR:GENERAL-PURPOSE-I-PDU"/>
+                  <xsd:element name="GENERAL-PURPOSE-PDU" type="AR:GENERAL-PURPOSE-PDU"/>
+                  <xsd:element name="GENERIC-ETHERNET-FRAME" type="AR:GENERIC-ETHERNET-FRAME"/>
+                  <xsd:element name="GLOBAL-TIME-DOMAIN" type="AR:GLOBAL-TIME-DOMAIN"/>
+                  <xsd:element name="HW-CATEGORY" type="AR:HW-CATEGORY"/>
+                  <xsd:element name="HW-ELEMENT" type="AR:HW-ELEMENT"/>
+                  <xsd:element name="HW-TYPE" type="AR:HW-TYPE"/>
+                  <xsd:element name="I-PV-6-EXT-HEADER-FILTER-SET" type="AR:I-PV-6-EXT-HEADER-FILTER-SET"/>
+                  <xsd:element name="I-SIGNAL" type="AR:I-SIGNAL"/>
+                  <xsd:element name="I-SIGNAL-GROUP" type="AR:I-SIGNAL-GROUP"/>
+                  <xsd:element name="I-SIGNAL-I-PDU" type="AR:I-SIGNAL-I-PDU"/>
+                  <xsd:element name="I-SIGNAL-I-PDU-GROUP" type="AR:I-SIGNAL-I-PDU-GROUP"/>
+                  <xsd:element name="IEEE-1722-TP-ETHERNET-FRAME" type="AR:IEEE-1722-TP-ETHERNET-FRAME"/>
+                  <xsd:element name="IMPLEMENTATION-DATA-TYPE" type="AR:IMPLEMENTATION-DATA-TYPE"/>
+                  <xsd:element name="INTERPOLATION-ROUTINE-MAPPING-SET" type="AR:INTERPOLATION-ROUTINE-MAPPING-SET"/>
+                  <xsd:element name="J-1939-CLUSTER" type="AR:J-1939-CLUSTER"/>
+                  <xsd:element name="J-1939-CONTROLLER-APPLICATION" type="AR:J-1939-CONTROLLER-APPLICATION"/>
+                  <xsd:element name="J-1939-DCM-I-PDU" type="AR:J-1939-DCM-I-PDU"/>
+                  <xsd:element name="J-1939-TP-CONFIG" type="AR:J-1939-TP-CONFIG"/>
+                  <xsd:element name="KEYWORD-SET" type="AR:KEYWORD-SET"/>
+                  <xsd:element name="LIFE-CYCLE-INFO-SET" type="AR:LIFE-CYCLE-INFO-SET"/>
+                  <xsd:element name="LIFE-CYCLE-STATE-DEFINITION-GROUP" type="AR:LIFE-CYCLE-STATE-DEFINITION-GROUP"/>
+                  <xsd:element name="LIN-CLUSTER" type="AR:LIN-CLUSTER"/>
+                  <xsd:element name="LIN-EVENT-TRIGGERED-FRAME" type="AR:LIN-EVENT-TRIGGERED-FRAME"/>
+                  <xsd:element name="LIN-SPORADIC-FRAME" type="AR:LIN-SPORADIC-FRAME"/>
+                  <xsd:element name="LIN-TP-CONFIG" type="AR:LIN-TP-CONFIG"/>
+                  <xsd:element name="LIN-UNCONDITIONAL-FRAME" type="AR:LIN-UNCONDITIONAL-FRAME"/>
+                  <xsd:element name="MC-FUNCTION" type="AR:MC-FUNCTION"/>
+                  <xsd:element name="MODE-DECLARATION-GROUP" type="AR:MODE-DECLARATION-GROUP"/>
+                  <xsd:element name="MODE-DECLARATION-MAPPING-SET" type="AR:MODE-DECLARATION-MAPPING-SET"/>
+                  <xsd:element name="MODE-SWITCH-INTERFACE" type="AR:MODE-SWITCH-INTERFACE"/>
+                  <xsd:element name="MULTIPLEXED-I-PDU" type="AR:MULTIPLEXED-I-PDU"/>
+                  <xsd:element name="N-PDU" type="AR:N-PDU"/>
+                  <xsd:element name="NM-CONFIG" type="AR:NM-CONFIG"/>
+                  <xsd:element name="NM-PDU" type="AR:NM-PDU"/>
+                  <xsd:element name="NV-BLOCK-SW-COMPONENT-TYPE" type="AR:NV-BLOCK-SW-COMPONENT-TYPE"/>
+                  <xsd:element name="NV-DATA-INTERFACE" type="AR:NV-DATA-INTERFACE"/>
+                  <xsd:element name="PARAMETER-INTERFACE" type="AR:PARAMETER-INTERFACE"/>
+                  <xsd:element name="PARAMETER-SW-COMPONENT-TYPE" type="AR:PARAMETER-SW-COMPONENT-TYPE"/>
+                  <xsd:element name="PDUR-I-PDU-GROUP" type="AR:PDUR-I-PDU-GROUP"/>
+                  <xsd:element name="PHYSICAL-DIMENSION" type="AR:PHYSICAL-DIMENSION"/>
+                  <xsd:element name="PHYSICAL-DIMENSION-MAPPING-SET" type="AR:PHYSICAL-DIMENSION-MAPPING-SET"/>
+                  <xsd:element name="PORT-INTERFACE-MAPPING-SET" type="AR:PORT-INTERFACE-MAPPING-SET"/>
+                  <xsd:element name="PORT-PROTOTYPE-BLUEPRINT" type="AR:PORT-PROTOTYPE-BLUEPRINT"/>
+                  <xsd:element name="POST-BUILD-VARIANT-CRITERION" type="AR:POST-BUILD-VARIANT-CRITERION"/>
+                  <xsd:element name="POST-BUILD-VARIANT-CRITERION-VALUE-SET" type="AR:POST-BUILD-VARIANT-CRITERION-VALUE-SET"/>
+                  <xsd:element name="PREDEFINED-VARIANT" type="AR:PREDEFINED-VARIANT"/>
+                  <xsd:element name="RAPID-PROTOTYPING-SCENARIO" type="AR:RAPID-PROTOTYPING-SCENARIO"/>
+                  <xsd:element name="SDG-DEF" type="AR:SDG-DEF"/>
+                  <xsd:element name="SECURE-COMMUNICATION-PROPS-SET" type="AR:SECURE-COMMUNICATION-PROPS-SET"/>
+                  <xsd:element name="SECURED-I-PDU" type="AR:SECURED-I-PDU"/>
+                  <xsd:element name="SENDER-RECEIVER-INTERFACE" type="AR:SENDER-RECEIVER-INTERFACE"/>
+                  <xsd:element name="SENSOR-ACTUATOR-SW-COMPONENT-TYPE" type="AR:SENSOR-ACTUATOR-SW-COMPONENT-TYPE"/>
+                  <xsd:element name="SERIALIZATION-TECHNOLOGY" type="AR:SERIALIZATION-TECHNOLOGY"/>
+                  <xsd:element name="SERVICE-PROXY-SW-COMPONENT-TYPE" type="AR:SERVICE-PROXY-SW-COMPONENT-TYPE"/>
+                  <xsd:element name="SERVICE-SW-COMPONENT-TYPE" type="AR:SERVICE-SW-COMPONENT-TYPE"/>
+                  <xsd:element name="SO-AD-ROUTING-GROUP" type="AR:SO-AD-ROUTING-GROUP"/>
+                  <xsd:element name="SOMEIP-TP-CONFIG" type="AR:SOMEIP-TP-CONFIG"/>
+                  <xsd:element name="SW-ADDR-METHOD" type="AR:SW-ADDR-METHOD"/>
+                  <xsd:element name="SW-AXIS-TYPE" type="AR:SW-AXIS-TYPE"/>
+                  <xsd:element name="SW-BASE-TYPE" type="AR:SW-BASE-TYPE"/>
+                  <xsd:element name="SW-RECORD-LAYOUT" type="AR:SW-RECORD-LAYOUT"/>
+                  <xsd:element name="SW-SYSTEMCONST" type="AR:SW-SYSTEMCONST"/>
+                  <xsd:element name="SW-SYSTEMCONSTANT-VALUE-SET" type="AR:SW-SYSTEMCONSTANT-VALUE-SET"/>
+                  <xsd:element name="SWC-BSW-MAPPING" type="AR:SWC-BSW-MAPPING"/>
+                  <xsd:element name="SWC-IMPLEMENTATION" type="AR:SWC-IMPLEMENTATION"/>
+                  <xsd:element name="SWC-TIMING" type="AR:SWC-TIMING"/>
+                  <xsd:element name="SYSTEM" type="AR:SYSTEM"/>
+                  <xsd:element name="SYSTEM-SIGNAL" type="AR:SYSTEM-SIGNAL"/>
+                  <xsd:element name="SYSTEM-SIGNAL-GROUP" type="AR:SYSTEM-SIGNAL-GROUP"/>
+                  <xsd:element name="SYSTEM-TIMING" type="AR:SYSTEM-TIMING"/>
+                  <xsd:element name="TCP-OPTION-FILTER-SET" type="AR:TCP-OPTION-FILTER-SET"/>
+                  <xsd:element name="TRANSFORMATION-PROPS-SET" type="AR:TRANSFORMATION-PROPS-SET"/>
+                  <xsd:element name="TRIGGER-INTERFACE" type="AR:TRIGGER-INTERFACE"/>
+                  <xsd:element name="TTCAN-CLUSTER" type="AR:TTCAN-CLUSTER"/>
+                  <xsd:element name="UNIT" type="AR:UNIT"/>
+                  <xsd:element name="UNIT-GROUP" type="AR:UNIT-GROUP"/>
+                  <xsd:element name="USER-DEFINED-CLUSTER" type="AR:USER-DEFINED-CLUSTER"/>
+                  <xsd:element name="USER-DEFINED-ETHERNET-FRAME" type="AR:USER-DEFINED-ETHERNET-FRAME"/>
+                  <xsd:element name="USER-DEFINED-I-PDU" type="AR:USER-DEFINED-I-PDU"/>
+                  <xsd:element name="USER-DEFINED-PDU" type="AR:USER-DEFINED-PDU"/>
+                  <xsd:element name="VFB-TIMING" type="AR:VFB-TIMING"/>
+                  <xsd:element name="VIEW-MAP-SET" type="AR:VIEW-MAP-SET"/>
+                  <xsd:element name="XCP-PDU" type="AR:XCP-PDU"/>
+               </xsd:choice>
+            </xsd:complexType>
+         </xsd:element>
+         <xsd:element maxOccurs="1" minOccurs="0" name="AR-PACKAGES">
+            <xsd:annotation>
+               <xsd:documentation>This represents a sub package within an ARPackage, thus allowing for an unlimited package hierarchy.
+The upper multiplicity of this role has been increased to * due to resolving an atpVariation stereotype. The previous value was -1.</xsd:documentation>
+               <xsd:appinfo source="tags">atp.Splitkey="shortName, variationPoint.shortLabel";mmt.qualifiedName="ARPackage.arPackage";pureMM.maxOccurs="-1";pureMM.minOccurs="0";vh.latestBindingTime="blueprintDerivationTime";xml.sequenceOffset="30"</xsd:appinfo>
+               <xsd:appinfo source="stereotypes">atpSplitable</xsd:appinfo>
+            </xsd:annotation>
+            <xsd:complexType>
+               <xsd:choice maxOccurs="unbounded" minOccurs="0">
+                  <xsd:element name="AR-PACKAGE" type="AR:AR-PACKAGE"/>
+               </xsd:choice>
+            </xsd:complexType>
+         </xsd:element>
+         <xsd:element maxOccurs="1" minOccurs="0" name="VARIATION-POINT" type="AR:VARIATION-POINT">
+            <xsd:annotation>
+               <xsd:documentation>This element was generated/modified due to an atpVariation stereotype.</xsd:documentation>
+               <xsd:appinfo source="tags">mmt.qualifiedName="ARPackage.variationPoint";pureMM.maxOccurs="1";pureMM.minOccurs="0";xml.sequenceOffset="10000"</xsd:appinfo>
+            </xsd:annotation>
+         </xsd:element>
+      </xsd:sequence>
+   </xsd:group>
+</xsd:schema>
