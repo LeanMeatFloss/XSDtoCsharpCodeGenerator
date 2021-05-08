@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -17,24 +18,27 @@ namespace CSharpCodeGenerator
         XmlSchemaSet SchemaSet { get; set; }
         [XmlIgnore]
         XmlSchema Schema { get; set; }
-        public TypeDefineRef ParserFile(string[] dependencyFilePath, string targetFilePath, string rootObject)
+
+        Dictionary<string, string> SchemaLocation { get; set; } = new Dictionary<string, string>();
+        public TypeDefineRef ParserFile(string[] dependencyFilePath, string[] dependenctSchemaFileLocation, string targetFilePath, string targetSchemaLocation, string rootObject)
         {
             SchemaSet = new XmlSchemaSet();
             Schema = null;
-            foreach (var filePath in dependencyFilePath)
+            for (int i = 0; i < dependencyFilePath.Length; i++)
             {
-                using (FileStream fs = File.OpenRead(filePath))
+                using (FileStream fs = File.OpenRead(dependencyFilePath[i]))
                 {
                     var schema = XmlSchema.Read(fs, null);
                     SchemaSet.Add(schema);
-
+                    SchemaLocation[schema.TargetNamespace] = dependenctSchemaFileLocation[i];
                 }
             }
+
             using (FileStream fs = File.OpenRead(targetFilePath))
             {
                 Schema = XmlSchema.Read(fs, null);
                 SchemaSet.Add(Schema);
-
+                SchemaLocation[Schema.TargetNamespace] = targetSchemaLocation;
             }
             SchemaSet.Compile();
             //searching for element~~~
@@ -46,6 +50,8 @@ namespace CSharpCodeGenerator
             };
             HandlingTypes(SchemaSet.GlobalElements.Values.OfType<XmlSchemaObject>().FirstOrDefault(), Root);
 
+
+           
 
 
             //first calculate the base type referenced Types
@@ -93,8 +99,41 @@ namespace CSharpCodeGenerator
                 //handling the items in the filter Item
                 filterItem.IsArray = true;
             }
-
+            HandlerFinalAnnotation();
             return Root;
+        }
+        void HandlerFinalAnnotation()
+        {
+            //reassign summary to single child item
+            foreach (var item in TypeDefineCollection)
+            {
+                if (item.Value.IsXmlBasicType)
+                {
+                    continue;
+                }
+                if (item.Value.ChildProperties.Count == 1 && item.Value.ChildProperties[0].IsArray)
+                {
+                    //child are all array
+                    continue;
+                }
+                if (Root.RefType.Equals(item.Value))
+                {
+                    //assign the annotation to the class
+                    item.Value.AppInfo = Root.AppInfo;
+                    item.Value.Summary = Root.Summary;
+                }
+                foreach (var subItem in item.Value.ChildProperties)
+                {
+                    //if child item are single array
+                    if (subItem.XmlNodeType == XmlNodeType.XmlElement && subItem.RefType.ChildProperties.Count == 1 && subItem.RefType.ChildProperties[0].IsArray)
+                    {
+                        //assign the annotation to the class
+                        subItem.RefType.AppInfo = subItem.AppInfo;
+                        subItem.RefType.Summary = subItem.Summary;
+                    }
+                }
+            }
+            
         }
         public void GenerateCodeForCSharp(string NameSpace)
         {
@@ -188,6 +227,7 @@ namespace CSharpCodeGenerator
         }
         public class TypeDefineInformation
         {
+
             public string Summary { get; set; }
             public string AppInfo { get; set; }
             public XmlSchemaType XmlRef { get; set; }
@@ -206,53 +246,27 @@ namespace CSharpCodeGenerator
                 return res;
             }
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="NameSpace"></param>
-        /// <returns></returns>
         public string GenerateCode(string NameSpace)
         {
             StringBuilder stringBuilder = new StringBuilder(@"
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Xml;
 using System.Xml.Serialization;
+using System.Text.RegularExpressions;
+using System.Diagnostics;
 ");
             stringBuilder.AppendLine($"namespace {NameSpace}");
             stringBuilder.AppendLine("{");
-            //            stringBuilder.AppendLine(@"
-            //    public abstract class XmlNodeBase
-            //    {
-            //        public virtual XmlNodeNameEnum XmlNodeName {get;set;}
-            //    }
-            //    public enum XmlNodeNameEnum
-            //    {
-            //");
-            //            //generate all potential value for xml node
-            //            List<string> XmlNodeNameList = TypeDefineCollection.Values
-            //                .Where(ele => !ele.IsXmlBasicType)
-            //                .Where(ele => ele.TypeBase != TypeBaseEnum.Enum)
-            //                .Where(ele => ele.TypeBase != TypeBaseEnum.Array)
-            //                .Select(ele => ele.Name)
-            //                .Concat(TypeDefineCollection
-            //                    .SelectMany(ele => ele.Value.ChildProperties)
-            //                    .Where(ele => ele.XmlNodeType != XmlNodeType.XmlEnum)
-            //                    .Where(ele => !ele.RefType.IsXmlBasicType)
-            //                    .Where(ele => ele.RefType.TypeBase != TypeBaseEnum.Array && ele.RefType.TypeBase != TypeBaseEnum.Choice)
-            //                    .Select(ele => ele.Name)
-            //                    )
-            //                .Distinct().ToList();
-            //            foreach (var nameNode in XmlNodeNameList)
-            //            {
-            //                stringBuilder.AppendLine($"\t\t[XmlEnum(\"{nameNode}\")]");
-            //                stringBuilder.AppendLine($"\t\t{NameConverter(nameNode)},");
-            //            }
-            //            stringBuilder.AppendLine("\t}");
-
-            //handling array item or choice item
-            //add content
+            //add base type for all containers
+            stringBuilder.AppendFormat(@"
+    public abstract partial class _{0}BaseType
+    {{
+        
+    }}
+", NameSpace);
             foreach (var item in TypeDefineCollection)
             {
                 if (item.Value.IsXmlBasicType)
@@ -264,36 +278,34 @@ using System.Xml.Serialization;
                     //child are all array
                     continue;
                 }
-                //add content for root
-                if (Root.RefType.Equals(item.Value))
+                //add class summary
+                if (!string.IsNullOrEmpty(item.Value.Summary) || !string.IsNullOrEmpty(item.Value.AppInfo))
                 {
-                    if (!string.IsNullOrEmpty(Root.Summary) || !string.IsNullOrEmpty(Root.AppInfo))
-                    {
-                        string comment = "Documents:\n" + Root.Summary + "\nAppInfo:\n" + Root.AppInfo;
-                        comment = "\t\t///" + string.Join("\n\t///", comment.Split(new char[] { '\n' }));
-                        //add summary
-                        stringBuilder.AppendFormat(@"
+                    string commentRaw = "Documents:\n" + Root.Summary + "\nAppInfo:\n" + Root.AppInfo;
+                    string comment = "\t///" + string.Join("\n\t///", commentRaw.Split(new char[] { '\n' }).Distinct());
+                    //add summary
+                    stringBuilder.AppendFormat(@"
     ///<summary>
 {0}
     ///</summary>
-", comment);
-                    }
-                    //add root summary
-                    stringBuilder.AppendLine($"\t[XmlRoot(ElementName=\"{Root.Name}\",Namespace=\"{Root.NameSpace}\")]");
+    [Description(Desc={1})]
+", comment, $"@\"{string.Join("\n",commentRaw.Split(new char[] { '\n' }).Distinct()).Replace("\"", "")}\"");
+                }
+                //add content for root
+                if (Root.RefType.Equals(item.Value))
+                {
                     
+                    stringBuilder.AppendLine($"\t[XmlRoot(ElementName=\"{Root.Name}\",Namespace=\"{Root.NameSpace}\")]");
+
                 }
                 if (item.Value.TypeBase == TypeBaseEnum.Enum)
                 {
                     stringBuilder.Append("\tpublic enum ");
                 }
-                else// if (item.Value.TypeBase == TypeBaseEnum.Class)
+                else
                 {
                     stringBuilder.Append("\tpublic class ");
                 }
-                //else
-                //{
-                //    continue;
-                //}
                 //add name
                 stringBuilder.Append($"{NameConverter(item.Value.Name)}");
                 //add inherit info
@@ -306,53 +318,106 @@ using System.Xml.Serialization;
                     stringBuilder.Append("\n\t{\n");
                     //add xmlText to the child
                     stringBuilder.AppendFormat("\t\t[XmlText(Type=typeof({0}))]\n", item.Value.InheritInfomation[0].IsXmlBasicType ? item.Value.InheritInfomation[0].Name : NameConverter(item.Value.InheritInfomation[0].Name));
-                    stringBuilder.AppendLine($"\t\tpublic {(item.Value.InheritInfomation[0].IsXmlBasicType ? item.Value.InheritInfomation[0].Name : NameConverter(item.Value.InheritInfomation[0].Name))} _XmlText {{get;set;}}");
-                }
-                else if (item.Value.InheritInfomation.Count != 0)
-                {
-                    stringBuilder.Append(" : " + string.Join(",", item.Value.InheritInfomation.Select(ele => NameConverter(ele.Name))));
-
-                    stringBuilder.Append("\n\t{\n");
+                    stringBuilder.AppendLine($"\t\tpublic virtual {(item.Value.InheritInfomation[0].IsXmlBasicType ? item.Value.InheritInfomation[0].Name : NameConverter(item.Value.InheritInfomation[0].Name))} _XmlText {{get;set;}}");
+                    stringBuilder.Append(@"
+        public override string ToString()
+        {
+            return _XmlText.ToString();
+        }
+");
                 }
                 else
                 {
-                    stringBuilder.Append("\n\t{\n");
+                    if (item.Value.InheritInfomation.Count != 0)
+                    {
+                        stringBuilder.Append(" : " + string.Join(",", item.Value.InheritInfomation.Select(ele => NameConverter(ele.Name))));
+
+                        stringBuilder.Append("\n\t{\n");
+                    }
+                    else if (item.Value.TypeBase != TypeBaseEnum.Enum)
+                    {
+                        stringBuilder.AppendFormat(" : _{0}BaseType\n\t{{\n", NameSpace);
+                    }
+                    else
+                    {
+                        stringBuilder.Append("\n\t{\n");
+                    }
+                    if (item.Value.TypeBase != TypeBaseEnum.Enum)
+                    {
+                        //add xmlText to the child
+                        stringBuilder.AppendFormat("\t\t[XmlText(Type=typeof({0}))]\n", "string");
+                        stringBuilder.AppendLine($"\t\tpublic {(item.Value.InheritInfomation.Count > 0 ? "override" : "virtual")} string _XmlText {{get;set;}}");
+                        //                        stringBuilder.Append(@"
+                        //        public override string ToString()
+                        //        {
+
+                        //            PropertyInfo idenProp = this.GetType().GetProperties().Where(prop => prop.PropertyType.Equals(typeof(Identifier))).FirstOrDefault();
+                        //            if(idenProp!=null)
+                        //            {
+                        //                return idenProp.GetValue(this).ToString();
+                        //            }
+                        //            else if(!string.IsNullOrEmpty(_XmlText))
+                        //            {
+                        //                return _XmlText;
+                        //            }
+                        //            else
+                        //            {
+                        //                return base.ToString();
+                        //            }
+                        //        }
+                        //");
+
+                    }
+
                 }
 
+                if (Root.RefType.Equals(item.Value))
+                {
+                    //root type add schemalocation inforamtions
+                    foreach (var schemaLocationItem in SchemaLocation)
+                    {
+                        stringBuilder.AppendFormat("\t\t[XmlAttribute(AttributeName=\"schemaLocation\",Namespace=\"{0}\")]\n", schemaLocationItem.Key);
+                        stringBuilder.AppendLine($"\t\tpublic virtual string _{string.Join("", schemaLocationItem.Value.Where(ele => Regex.IsMatch(ele.ToString(), "[0-9a-zA-Z]")))}_SchemaLocation {{get;set;}} = \"{schemaLocationItem.Value}\";");
+                    }
+                }
+                int orderIdx = 0;
                 foreach (var subItem in item.Value.ChildProperties)
                 {
+
                     string TypeName = "";
-                    //handling enum
+                    bool isChangedToArray = false;
                     if (!string.IsNullOrEmpty(subItem.Summary) || !string.IsNullOrEmpty(subItem.AppInfo))
                     {
-                        string comment = "Documents:\n" + subItem.Summary + "\nAppInfo:\n" + subItem.AppInfo;
-                        comment = "\t\t///" + string.Join("\n\t\t///", comment.Split(new char[] { '\n' }));
+                        string commentRaw = "Documents:\n" + subItem.Summary + "\nAppInfo:\n" + subItem.AppInfo;
+                        string comment = "\t\t///" + string.Join("\n\t\t///", commentRaw.Split(new char[] { '\n' }).Distinct());
                         //add summary
                         stringBuilder.AppendFormat(@"
         ///<summary>
 {0}
         ///</summary>
-", comment);
+        [Description(Desc={1})]
+", comment, $"@\"{string.Join("\n",commentRaw.Split(new char[] { '\n' }).Distinct()).Replace("\"", "")}\"");
                     }
                     //if child item are single array
                     if (subItem.XmlNodeType == XmlNodeType.XmlElement && subItem.RefType.ChildProperties.Count == 1 && subItem.RefType.ChildProperties[0].IsArray)
                     {
-                        //handling enum
-                        if (!string.IsNullOrEmpty(subItem.RefType.ChildProperties[0].Summary) || !string.IsNullOrEmpty(subItem.RefType.ChildProperties[0].AppInfo))
-                        {
-                            string comment = "Documents:\n" + subItem.RefType.ChildProperties[0].Summary + "\nAppInfo:\n" + subItem.RefType.ChildProperties[0].AppInfo;
-                            comment = "\t\t///" + string.Join("\n\t\t///", comment.Split(new char[] { '\n' }));
-                            //add summary
-                            stringBuilder.AppendFormat(@"
-        ///<summary>
-{0}
-        ///</summary>
-", comment);
-                        }
+//                        //handling child annotation
+//                        if (!string.IsNullOrEmpty(subItem.RefType.ChildProperties[0].Summary) || !string.IsNullOrEmpty(subItem.RefType.ChildProperties[0].AppInfo))
+//                        {
+//                            string comment = "Documents:\n" + subItem.RefType.ChildProperties[0].Summary + "\nAppInfo:\n" + subItem.RefType.ChildProperties[0].AppInfo;
+//                            comment = "\t\t///" + string.Join("\n\t\t///", comment.Split(new char[] { '\n' }).Distinct());
+//                            //add summary
+//                            stringBuilder.AppendFormat(@"
+//        ///<summary>
+//{0}
+//        ///</summary>
+//", comment);
+//                        }
                         //map to a array instead of elements
-                        stringBuilder.AppendFormat("\t\t[XmlArray(ElementName=\"{0}\",Namespace={1})]\n", subItem.Name, $"\"{subItem.NameSpace}\"");
+                        stringBuilder.AppendFormat("\t\t[XmlArray(ElementName=\"{0}\",Namespace={1},Order={2})]\n", subItem.Name, $"\"{subItem.NameSpace}\"", orderIdx++);
                         stringBuilder.AppendFormat("\t\t[XmlArrayItem(ElementName=\"{0}\",Namespace={1})]\n", subItem.RefType.ChildProperties[0].Name, $"\"{subItem.NameSpace}\"");
                         TypeName = NameConverter(subItem.RefType.ChildProperties[0].RefType.Name) + "[]";
+                        isChangedToArray = true;
                     }
                     else
                     {
@@ -388,11 +453,11 @@ using System.Xml.Serialization;
                                     {
                                         TypeName = NameConverter(subItem.RefType.Name);
                                     }
-                                    if (subItem.IsArray)
+                                    if (subItem.IsArray || isChangedToArray)
                                     {
                                         TypeName += "[]";
                                     }
-                                    stringBuilder.AppendFormat("\t\t[XmlElement(ElementName=\"{0}\",Namespace={1})]\n", subItem.Name, $"\"{subItem.NameSpace}\"");
+                                    stringBuilder.AppendFormat("\t\t[XmlElement(ElementName=\"{0}\",Namespace={1},Order={2})]\n", subItem.Name, $"\"{subItem.NameSpace}\"", orderIdx++);
                                 }
                                 break;
                         }
@@ -405,7 +470,18 @@ using System.Xml.Serialization;
                     else
                     {
                         string elementName = NameConverter(subItem.Name);
+                        if (subItem.IsArray && !isChangedToArray)
+                        {
+                            if (new string[] { "s", "es", "th", "sh", "o" }.Where(ele => string.Join("", elementName.Skip(elementName.Length - ele.Length).Take(ele.Length)).Equals(ele)).Count() > 0)
+                            {
+                                elementName += "es";
+                            }
+                            else
+                            {
+                                elementName += "s";
+                            }
 
+                        }
                         if (TypeName.Equals(elementName) || elementName.Equals(NameConverter(item.Value.Name)) || item.Value.ChildProperties.Select(ele => ele.Name).Count(ele => ele.Equals(subItem.Name)) > 1)
                         {
                             switch (subItem.XmlNodeType)
@@ -422,22 +498,72 @@ using System.Xml.Serialization;
                             }
 
                         }
-                        if (subItem.IsArray)
-                        {
-                            elementName += "s";
-                        }
+                        //handling varification
+
                         if (string.IsNullOrEmpty(subItem.AbstractionLevel))
                         {
-                            stringBuilder.Append($"\t\tpublic {TypeName} {elementName} {{get;set;}}");
+                            stringBuilder.Append($"\t\tpublic virtual {TypeName} {elementName}");
                         }
                         else
                         {
-                            stringBuilder.Append($"\t\tpublic {subItem.AbstractionLevel} {TypeName} {elementName} {{get;set;}}");
+                            stringBuilder.Append($"\t\tpublic {subItem.AbstractionLevel} {TypeName} {elementName}");
                         }
-                        if(subItem.MinCount==1&&subItem.MaxCount==1&&!subItem.IsMinUnlimited&&!subItem.IsArray&&subItem.ParentType.TypeBase!=TypeBaseEnum.Enum)
+                        if (subItem.RefType.Name.Equals("string") && ((!string.IsNullOrEmpty(subItem.RegularExpression)) || (!string.IsNullOrEmpty(subItem.MaxLength))))
+                        {
+                            {
+                                stringBuilder.Append($"\n\t\t{{\n\t\t\tget=>_{elementName};\n\t\t\tset\n\t\t\t{{");
+                                //throw new Exception("Set value not matched the expression");
+                                if (!string.IsNullOrEmpty(subItem.RegularExpression))
+                                {
+                                    stringBuilder.AppendFormat(@"
+                if(!Regex.IsMatch(value,@{0}))
+                {{
+                    Trace.WriteLine({1});
+                    throw new Exception({1});
+                }}", $"\"{subItem.RegularExpression}\"", $"$\"{{value}} not match \"+@\"{subItem.RegularExpression}\"");
+                                }
+                                if (!string.IsNullOrEmpty(subItem.MaxLength))
+                                {
+                                    stringBuilder.AppendFormat(@"
+                if(value.Length>{0})
+                {{
+                    Trace.WriteLine({1});
+                    throw new Exception({1});
+                }}", $"{subItem.MaxLength}", $"$\"{{value}} length exceed {subItem.MaxLength}\"");
+                                }
+                                stringBuilder.AppendFormat(@"
+                _{0}=value;
+            }}
+        }}
+", elementName);
+                                stringBuilder.Append($"\t\t[XmlIgnore]\n");
+                                stringBuilder.Append($"\t\tprivate {TypeName} _{elementName} {{get;set;}}\n");
+
+                            }
+                        }
+                        else
+                        {
+                            stringBuilder.Append(" {get;set;}");
+                        }
+                        if (TypeName.Equals("XmlSpace"))
+                        {
+                            stringBuilder.Append(" = XmlSpace.Default;");
+                        }
+
+
+
+
+                        if (
+                            subItem.MinCount == 1
+                            && subItem.MaxCount == 1
+                            && !subItem.IsMinUnlimited
+                            && !isChangedToArray
+                            && !subItem.IsArray
+                            && subItem.ParentType.TypeBase != TypeBaseEnum.Enum
+                            )
                         {
                             //add type
-                            stringBuilder.Append($" = new {TypeName} ();");
+                            //stringBuilder.Append($" = new {TypeName} ();");
                         }
                         stringBuilder.Append("\n");
                     }
@@ -494,12 +620,22 @@ using System.Xml.Serialization;
                 if (annotationItem is XmlSchemaDocumentation schemaDocumentation)
                 {
                     //add summary
-                    currentDefine.Summary += string.Join("\n", schemaDocumentation.Markup.Select(ele => ele.Value));
+                    currentDefine.Summary += string.Join("\n", schemaDocumentation.Markup.Select(ele => ele.Value)) + "\n";
                 }
                 if (annotationItem is XmlSchemaAppInfo appInfo)
                 {
                     //add summary
-                    currentDefine.AppInfo += string.Join("\n", appInfo.Markup.Select(ele => ele.Value));
+                    currentDefine.AppInfo += appInfo.Source+":"+string.Join("\n", appInfo.Markup.Select(ele => ele.Value)) + "\n";
+                    if (appInfo.Source.Equals("stereotypes"))
+                    {
+                        if (appInfo.Markup.Where(ele => ele.Value.Contains("atpSplitable")).Count() != 0)
+                        {
+
+                        }
+                        //Debug.WriteLine("stereotypes");
+                        //add to type basic
+
+                    }
                 }
             }
         }
@@ -714,6 +850,8 @@ using System.Xml.Serialization;
                 case XmlSchemaParticle particle:
                     //handling schematype
                     {
+                        //element has annotation
+                        handlingAnnotation(particle, currentDefine);
                         switch (particle)
                         {
                             case XmlSchemaElement schemaElement:
@@ -721,7 +859,24 @@ using System.Xml.Serialization;
                                 //element has name
                                 currentDefine.Name = schemaElement.QualifiedName.Name;
                                 currentDefine.NameSpace = schemaElement.QualifiedName.Namespace;
+
                                 HandlingTypes(schemaElement.ElementSchemaType, currentDefine);
+                                if ("unbounded".Equals(schemaElement.MaxOccursString))
+                                {
+                                    currentDefine.IsMaxUnlimited = true;
+                                }
+                                else
+                                {
+                                    currentDefine.MaxCount = (int)schemaElement.MaxOccurs;
+                                }
+                                if ("unbounded".Equals(schemaElement.MinOccursString))
+                                {
+                                    currentDefine.IsMinUnlimited = true;
+                                }
+                                else
+                                {
+                                    currentDefine.MinCount = (int)schemaElement.MinOccurs;
+                                }
                                 break;
                             case XmlSchemaGroupBase groupBase:
                                 //handling items
@@ -731,12 +886,51 @@ using System.Xml.Serialization;
                                     {
                                         case XmlSchemaChoice choiceItem:
                                             HandlingTypes(choiceItem, currentDefine);
+                                            foreach (var childItem in currentDefine.RefType.ChildProperties.Where(ele => ele.XmlNodeType != XmlNodeType.XmlAttribute))
+                                            {
+                                                if ("unbounded".Equals(groupBase.MaxOccursString))
+                                                {
+                                                    childItem.IsMaxUnlimited = true;
+                                                }
+                                                else
+                                                {
+                                                    childItem.MaxCount = (int)groupBase.MaxOccurs;
+                                                }
+                                                if ("unbounded".Equals(groupBase.MinOccursString))
+                                                {
+                                                    childItem.IsMinUnlimited = true;
+                                                }
+                                                else
+                                                {
+                                                    childItem.MinCount = (int)groupBase.MinOccurs;
+                                                }
+                                            }
                                             break;
                                         case XmlSchemaElement schemaItem:
                                             //create child container
                                             //
                                             var typeRef = currentDefine.RefType.GetNewChild();
                                             HandlingTypes(schemaItem, typeRef);
+                                            foreach (var childItem in currentDefine.RefType.ChildProperties.Where(ele => ele.XmlNodeType != XmlNodeType.XmlAttribute))
+                                            {
+                                                if ("unbounded".Equals(groupBase.MaxOccursString))
+                                                {
+                                                    childItem.IsMaxUnlimited = true;
+                                                }
+                                                else
+                                                {
+                                                    childItem.MaxCount = (int)groupBase.MaxOccurs;
+                                                }
+                                                if ("unbounded".Equals(groupBase.MinOccursString))
+                                                {
+                                                    childItem.IsMinUnlimited = true;
+                                                }
+                                                else
+                                                {
+                                                    childItem.MinCount = (int)groupBase.MinOccurs;
+                                                }
+                                            }
+
                                             break;
                                         case XmlSchemaSequence sequenceItem:
                                             HandlingTypes(sequenceItem, currentDefine);
@@ -745,6 +939,7 @@ using System.Xml.Serialization;
                                             break;
                                     }
                                 }
+
                                 switch (groupBase)
                                 {
                                     case XmlSchemaSequence sequence:
@@ -768,26 +963,8 @@ using System.Xml.Serialization;
                                 }
                                 break;
                         }
-                        
-                        foreach (var item in currentDefine.RefType.ChildProperties.Where(ele => ele.XmlNodeType != XmlNodeType.XmlAttribute))
-                        {
-                            if ("unbounded".Equals(particle.MaxOccursString))
-                            {
-                                item.IsMaxUnlimited = true;
-                            }
-                            else
-                            {
-                                item.MaxCount = (int)particle.MaxOccurs;
-                            }
-                            if ("unbounded".Equals(particle.MinOccursString))
-                            {
-                                item.IsMinUnlimited = true;
-                            }
-                            else
-                            {
-                                item.MinCount = (int)particle.MinOccurs;
-                            }
-                        }
+
+
                     }
                     break;
                 default:
