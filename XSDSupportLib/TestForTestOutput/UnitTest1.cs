@@ -70,5 +70,11 @@ namespace TestForTestOutput
                 }
             }            
         }
+        [Fact]
+        public void TestLocation()
+        {
+            AR430.Autosar.GetInstance("U:\\DflsM.arxml", out AR430.Autosar autosarPackage);
+            autosarPackage.GetElementByPath("/DflsM_ArItf/DflsM/DflsM_InternalBehavior/DflsM_AppValidWrite");
+        }
     }
 }

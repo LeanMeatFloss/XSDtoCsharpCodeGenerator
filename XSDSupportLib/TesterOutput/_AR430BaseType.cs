@@ -143,6 +143,10 @@ namespace AR430
         public virtual _AR430BaseType GetElementByPath(string path)
         {
             _AR430BaseType curr = this;
+            if(string.IsNullOrEmpty(path))
+            {
+                return null;
+            }
             foreach (var item in path.Split(new string[] { "/" }, StringSplitOptions.RemoveEmptyEntries))
             {
                 curr = curr[item];
@@ -178,13 +182,23 @@ namespace AR430
                             .Where(item => item != null)
                             .Where(item => !item.GetType().GetProperties().Select(subProp => subProp.PropertyType).Contains(typeof(Identifier)))
                             .SelectMany(item => getIdenItem(item))
+                        )
+                        .Concat(input.GetType()
+                            .GetProperties()
+                            .Where(prop => prop.GetIndexParameters().Length == 0)
+                            .Where(prop => prop.GetValue(input) != null)
+                            .Where(prop => !prop.GetType().IsArray)
+                            .Select(prop => prop.GetValue(input) as _AR430BaseType)
+                            .Where(item => item != null)
+                            .Where(item => item.GetType().GetProperties().Select(subProp => subProp.PropertyType).Contains(typeof(Identifier)))
                         );
                 }
                 var res = getIdenItem(this).ToList();
                 return res
-                    .Where(ele => ele.GetType()
+                    .Where(ele => ((ele.GetType()
                         .GetProperties()
-                        .Where(prop => prop.PropertyType.Equals(typeof(Identifier))).First().GetValue(ele).ToString().Equals(Name)).FirstOrDefault();
+                        .Where(prop =>prop.PropertyType.Equals(typeof(Identifier))).First().GetValue(ele)?.ToString()?.Equals(Name))??false)
+                            ).FirstOrDefault();
 
             }
         }

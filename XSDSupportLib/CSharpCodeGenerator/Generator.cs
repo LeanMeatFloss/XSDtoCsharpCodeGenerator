@@ -38,7 +38,11 @@ namespace CSharpCodeGenerator
             {
                 Schema = XmlSchema.Read(fs, null);
                 SchemaSet.Add(Schema);
-                SchemaLocation[Schema.TargetNamespace] = targetSchemaLocation;
+                if(!string.IsNullOrEmpty(Schema.TargetNamespace))
+                {
+                    SchemaLocation[Schema.TargetNamespace] = targetSchemaLocation;
+                }
+               
             }
             SchemaSet.Compile();
             //searching for element~~~
@@ -414,7 +418,7 @@ using System.Diagnostics;
 //", comment);
 //                        }
                         //map to a array instead of elements
-                        stringBuilder.AppendFormat("\t\t[XmlArray(ElementName=\"{0}\",Namespace={1},Order={2})]\n", subItem.Name, $"\"{subItem.NameSpace}\"", orderIdx++);
+                        stringBuilder.AppendFormat("\t\t[XmlArray(ElementName=\"{0}\",Namespace={1})]\n", subItem.Name, $"\"{subItem.NameSpace}\"");
                         stringBuilder.AppendFormat("\t\t[XmlArrayItem(ElementName=\"{0}\",Namespace={1})]\n", subItem.RefType.ChildProperties[0].Name, $"\"{subItem.NameSpace}\"");
                         TypeName = NameConverter(subItem.RefType.ChildProperties[0].RefType.Name) + "[]";
                         isChangedToArray = true;
@@ -457,7 +461,7 @@ using System.Diagnostics;
                                     {
                                         TypeName += "[]";
                                     }
-                                    stringBuilder.AppendFormat("\t\t[XmlElement(ElementName=\"{0}\",Namespace={1},Order={2})]\n", subItem.Name, $"\"{subItem.NameSpace}\"", orderIdx++);
+                                    stringBuilder.AppendFormat("\t\t[XmlElement(ElementName=\"{0}\",Namespace={1})]\n", subItem.Name, $"\"{subItem.NameSpace}\"");
                                 }
                                 break;
                         }

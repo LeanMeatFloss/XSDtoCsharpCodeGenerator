@@ -18,13 +18,13 @@ namespace TestForCSharpCodeGenerator
         {
             CSharpCodeGenerator.Generator generator = new CSharpCodeGenerator.Generator();
             var res = generator.ParserFile(
-                new string[] { @"C:\Personal\WorkSpaces\XSDtoCsharpCodeGenerator\namespace.xsd" },
-                new string[] { "http://autosar.org/schema/r4.0",}, 
-                @"C:\Personal\WorkSpaces\XSDtoCsharpCodeGenerator\AUTOSAR_4-3-0.xsd",
+                new string[] { @"C:\Personal\WorkSpaces\GItHub\XSDtoCsharpCodeGenerator\namespace.xsd" },
+                new string[] { "http://autosar.org/schema/r4.0",},
+                @"C:\Personal\WorkSpaces\GItHub\XSDtoCsharpCodeGenerator\AUTOSAR_4-3-0.xsd",
                  "http://autosar.org/schema/r4.0 AUTOSAR_4-3-0.xsd",
                 "AUTOSAR");
             var code = generator.GenerateCode("AR430");
-            File.WriteAllText(@"C:\Personal\WorkSpaces\XSDtoCsharpCodeGenerator\XSDSupportLib\TesterOutput\AR.cs", code);
+            File.WriteAllText(@"C:\Personal\WorkSpaces\GItHub\XSDtoCsharpCodeGenerator\XSDSupportLib\TesterOutput\AR.cs", code);
             //XmlSerializer ser = new XmlSerializer(generator.GetType());
             //StringBuilder sb = new StringBuilder();
             //try
@@ -38,12 +38,25 @@ namespace TestForCSharpCodeGenerator
             //{
             //    Debug.Write(e.Message + e.StackTrace);
             //}
-            File.WriteAllText("loadCOnfigure.xml", code);
+            //File.WriteAllText("loadCOnfigure.xml", code);
             //}
             //catch (Exception e)
             //{
 
             //}
+        }
+        [Fact]
+        public void TestForGenerateJUnit()
+        {
+            CSharpCodeGenerator.Generator generator = new CSharpCodeGenerator.Generator();
+            var res = generator.ParserFile(
+                new string[] {},
+                new string[] {},
+                @"C:\Personal\WorkSpaces\GItHub\XSDtoCsharpCodeGenerator\XSDSupportLib\TestForXSDParser\JUnit.xsd",
+                 "",
+                "testsuites");
+            var code = generator.GenerateCode("JUnit");
+            File.WriteAllText(@"C:\Personal\WorkSpaces\GItHub\XSDtoCsharpCodeGenerator\XSDSupportLib\TesterOutput\JUnit.cs", code);
         }
         
     }
